@@ -29,7 +29,6 @@ import android.util.Log;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -42,13 +41,11 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -226,7 +223,7 @@ public class AVPlayer {
                 dataSourceFactory = new DataSource.Factory() {
                     @Override
                     public DataSource createDataSource() {
-                        return new RawResourceDataSource(context, null);
+                        return new RawResourceDataSource(context);
                     }
                 };
             } else {
@@ -258,17 +255,21 @@ public class AVPlayer {
         int type = inferContentType(uri);
         switch (type) {
             case C.TYPE_SS:
-                return new SsMediaSource(uri, mediaDataSourceFactory,
-                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), null, null);
+                /*return new SsMediaSource(uri, mediaDataSourceFactory,
+                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory), null, null);*/
+                return new SsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
             case C.TYPE_DASH:
-                return new DashMediaSource(uri, mediaDataSourceFactory,
-                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), null, null);
+                /*return new DashMediaSource(uri, mediaDataSourceFactory,
+                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory), null, null);*/
+                return new DashMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
             case C.TYPE_HLS:
-                return new HlsMediaSource(uri, mediaDataSourceFactory, null, null);
+                /*return new HlsMediaSource(uri, mediaDataSourceFactory, null, null);*/
+                return new HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
             default:
                 // Return an ExtraMediaSource as default.
-                return new ExtractorMediaSource(uri, mediaDataSourceFactory, extractorsFactory,
-                        null, null);
+                /*return new ExtractorMediaSource(uri, mediaDataSourceFactory, extractorsFactory,
+                        null, null);*/
+                return new ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
         }
     }
 
